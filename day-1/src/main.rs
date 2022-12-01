@@ -11,7 +11,7 @@ fn main() {
         .expect("Could not read file");
 
     let mut lines = file_content
-        .split("\n");
+        .lines();
 
     let mut elves: Vec<Elf> = vec!();
     let mut current_elf = Elf::default();
