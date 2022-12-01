@@ -1,4 +1,4 @@
-# Advent-Of-Code-2022
+# Advent Of Code 2022
 
 About Repo for my solutions to the 2022 Advent of Code challenges written in rust.
 
