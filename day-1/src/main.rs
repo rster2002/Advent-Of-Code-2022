@@ -10,13 +10,13 @@ fn main() {
     let file_content = fs::read_to_string(file_path)
         .expect("Could not read file");
 
-    let lines: Vec<&str> = file_content
-        .split("\n")
-        .collect();
+    let mut lines = file_content
+        .split("\n");
 
     let mut elves: Vec<Elf> = vec!();
     let mut current_elf = Elf::default();
-    for line in lines {
+
+    while let Some(line) = lines.next() {
         if line == "" {
             let elf = mem::take(&mut current_elf);
             elves.push(elf);
