@@ -44,7 +44,7 @@ fn main() {
     println!("Total scope: {}", total_score);
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 enum Shape {
     Rock,
     Paper,
@@ -83,12 +83,6 @@ impl Shape {
             Shape::Paper => Shape::Rock,
             Shape::Scissors => Shape::Paper,
         }
-    }
-}
-
-impl PartialEq for Shape {
-    fn eq(&self, other: &Self) -> bool {
-        self.get_score_for_shape() == other.get_score_for_shape()
     }
 }
 
