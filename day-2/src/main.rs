@@ -1,3 +1,5 @@
+extern crate core;
+
 use std::{env, fs};
 use std::cmp::Ordering;
 use std::cmp::Ordering::{Equal, Greater, Less};
@@ -25,7 +27,8 @@ fn main() {
 
         chars.next();
 
-        let me = Shape::from_char(chars.next().unwrap());
+        let win_state = WinState::from_char(chars.next().unwrap());
+        let me = win_state.resolve_for_opponent(&opponent);
 
         if me == opponent {
             total_score += me.get_score_for_shape() + 3;
@@ -42,7 +45,7 @@ fn main() {
     println!("Total scope: {}", total_score);
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Shape {
     Rock,
     Paper,
@@ -52,9 +55,9 @@ enum Shape {
 impl Shape {
     pub fn from_char(char: char) -> Self {
         return match char {
-            'A' | 'X' => Shape::Rock,
-            'B' | 'Y' => Shape::Paper,
-            'C' | 'Z' => Shape::Scissors,
+            'A' => Shape::Rock,
+            'B' => Shape::Paper,
+            'C' => Shape::Scissors,
             _ => panic!("Invalid char"),
         }
     }
@@ -64,6 +67,22 @@ impl Shape {
             Shape::Rock => 1,
             Shape::Paper => 2,
             Shape::Scissors => 3,
+        }
+    }
+
+    pub fn get_winning(&self) -> Self {
+        return match self {
+            Shape::Rock => Shape::Paper,
+            Shape::Paper => Shape::Scissors,
+            Shape::Scissors => Shape::Rock,
+        }
+    }
+
+    pub fn get_losing(&self) -> Self {
+        return match self {
+            Shape::Rock => Shape::Scissors,
+            Shape::Paper => Shape::Rock,
+            Shape::Scissors => Shape::Paper,
         }
     }
 }
@@ -84,16 +103,36 @@ impl PartialOrd for Shape {
             return Some(Equal);
         }
 
-        let win = match other {
-            Shape::Rock => self == &Shape::Paper,
-            Shape::Paper => self == &Shape::Scissors,
-            Shape::Scissors => self == &Shape::Rock,
-        };
-
-        return if win {
+        return if &other.get_winning() == self {
             Some(Greater)
         } else {
             Some(Less)
+        }
+    }
+}
+
+#[derive(Debug)]
+enum WinState {
+    Win,
+    Draw,
+    Lose,
+}
+
+impl WinState {
+    pub fn from_char(char: char) -> Self {
+        match char {
+            'X' => WinState::Lose,
+            'Y' => WinState::Draw,
+            'Z' => WinState::Win,
+            _ => panic!("Invalid char"),
+        }
+    }
+
+    pub fn resolve_for_opponent(&self, opponent: &Shape) -> Shape {
+        match self {
+            WinState::Draw => opponent.clone(),
+            WinState::Win => opponent.get_winning(),
+            WinState::Lose => opponent.get_losing(),
         }
     }
 }
