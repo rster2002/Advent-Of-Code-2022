@@ -3,7 +3,6 @@ extern crate core;
 use std::{env, fs};
 use std::cmp::Ordering;
 use std::cmp::Ordering::{Equal, Greater, Less};
-use std::thread::sleep;
 
 fn main() {
     let file_path = env::args().nth(1)
@@ -12,11 +11,11 @@ fn main() {
     let file_content = fs::read_to_string(file_path)
         .expect("Could not read file");
 
-    let mut lines = file_content
+    let lines = file_content
         .lines();
 
     let mut total_score = 0;
-    while let Some(line) = lines.next() {
+    for line in lines {
         if line.len() < 3 {
             continue;
         }
@@ -54,7 +53,7 @@ enum Shape {
 
 impl Shape {
     pub fn from_char(char: char) -> Self {
-        return match char {
+        match char {
             'A' => Shape::Rock,
             'B' => Shape::Paper,
             'C' => Shape::Scissors,
@@ -63,7 +62,7 @@ impl Shape {
     }
 
     pub fn get_score_for_shape(&self) -> i32 {
-        return match self {
+        match self {
             Shape::Rock => 1,
             Shape::Paper => 2,
             Shape::Scissors => 3,
@@ -71,7 +70,7 @@ impl Shape {
     }
 
     pub fn get_winning(&self) -> Self {
-        return match self {
+        match self {
             Shape::Rock => Shape::Paper,
             Shape::Paper => Shape::Scissors,
             Shape::Scissors => Shape::Rock,
@@ -79,7 +78,7 @@ impl Shape {
     }
 
     pub fn get_losing(&self) -> Self {
-        return match self {
+        match self {
             Shape::Rock => Shape::Scissors,
             Shape::Paper => Shape::Rock,
             Shape::Scissors => Shape::Paper,
@@ -91,10 +90,6 @@ impl PartialEq for Shape {
     fn eq(&self, other: &Self) -> bool {
         self.get_score_for_shape() == other.get_score_for_shape()
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        !self.eq(other)
-    }
 }
 
 impl PartialOrd for Shape {
@@ -103,7 +98,7 @@ impl PartialOrd for Shape {
             return Some(Equal);
         }
 
-        return if &other.get_winning() == self {
+        if &other.get_winning() == self {
             Some(Greater)
         } else {
             Some(Less)
