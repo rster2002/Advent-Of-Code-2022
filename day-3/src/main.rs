@@ -1,24 +1,28 @@
 use std::{env, fs};
 
 fn main() {
-    let file_path = env::args().nth(1)
+    let file_path = env::args()
+        .nth(1)
         .expect("Please provide an input for the program");
 
-    let file_content = fs::read_to_string(file_path)
-        .expect("Could not read file");
+    let file_content = fs::read_to_string(file_path).expect("Could not read file");
 
-    let lines = file_content
-        .lines();
+    let lines = file_content.lines();
 
     // let mut sacks = vec!();
     let mut total: u32 = 0;
-    for line in lines {
-        let sack = Rucksack::from_line(line);
-        let common_item = sack.common_item()
-            .unwrap();
+    let mut current_group = Group::new();
 
-        total += item_to_priority(&common_item)
-            .unwrap();
+    for line in lines {
+
+        current_group.add_sack(line);
+
+        if current_group.group_complete() {
+            let common_item = current_group.common_item().unwrap();
+            total += item_to_priority(&common_item).unwrap();
+
+            current_group = Group::new();
+        }
     }
 
     println!("Total priority: {}", total);
@@ -67,4 +71,31 @@ fn item_to_priority(char: &char) -> Option<u32> {
     };
 
     Some(index as u32 + 1)
+}
+
+#[derive(Debug)]
+struct Group<'a> {
+    sack_contents: Vec<&'a str>,
+}
+
+impl<'a> Group<'a> {
+    pub fn new() -> Self {
+        Group {
+            sack_contents: vec!(),
+        }
+    }
+
+    pub fn add_sack(&mut self, sack: &'a str) {
+        self.sack_contents.push(sack);
+    }
+
+    pub fn group_complete(&self) -> bool {
+        self.sack_contents.len() == 3
+    }
+
+    pub fn common_item(&self) -> Option<char> {
+        self.sack_contents[0].chars().find(|&char| {
+            self.sack_contents[1].contains(char) && self.sack_contents[2].contains(char)
+        })
+    }
 }
