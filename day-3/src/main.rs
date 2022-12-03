@@ -52,13 +52,9 @@ impl Rucksack {
     }
 
     pub fn common_item(&self) -> Option<char> {
-        for char in self.compartments[0].chars() {
-            if self.compartments[1].contains(char) {
-                return Some(char);
-            }
-        }
-
-        None
+        self.compartments[0]
+            .chars()
+            .find(|&char| self.compartments[1].contains(char))
     }
 }
 
