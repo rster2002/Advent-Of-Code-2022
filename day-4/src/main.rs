@@ -1,4 +1,5 @@
 use std::{env, fs};
+use std::str::FromStr;
 
 fn main() {
     let file_path = env::args()
@@ -12,8 +13,16 @@ fn main() {
     let mut number_of_duplicates = 0;
     for line in lines {
         let mut assignments = line.split(',');
-        let first_assignment = SectionAssignment::from_str(assignments.next().unwrap());
-        let second_assignment = SectionAssignment::from_str(assignments.next().unwrap());
+
+        let first_assignment: SectionAssignment = assignments.next()
+            .unwrap()
+            .parse()
+            .unwrap();
+
+        let second_assignment = assignments.next()
+            .unwrap()
+            .parse()
+            .unwrap();
 
         if first_assignment.check_colliding(&second_assignment) {
             number_of_duplicates += 1;
@@ -27,14 +36,6 @@ fn main() {
 struct SectionAssignment(u32, u32);
 
 impl SectionAssignment {
-    pub fn from_str(string: &str) -> SectionAssignment {
-        let mut parts = string.split('-');
-        let start = parts.next().unwrap().parse().unwrap();
-        let end = parts.next().unwrap().parse().unwrap();
-
-        SectionAssignment(start, end)
-    }
-
     pub fn fully_contained(&self, other: &Self) -> bool {
         (self.0 <= other.0 && self.1 >= other.1) ||
             (other.0 <= self.0 && other.1 >= self.1)
@@ -42,5 +43,17 @@ impl SectionAssignment {
 
     pub fn check_colliding(&self, other: &Self) -> bool {
         other.0 <= self.1 && self.0 <= other.1
+    }
+}
+
+impl FromStr for SectionAssignment {
+    type Err = ();
+
+    fn from_str(string: &str) -> Result<Self, Self::Err> {
+        let mut parts = string.split('-');
+        let start = parts.next().unwrap().parse().unwrap();
+        let end = parts.next().unwrap().parse().unwrap();
+
+        Ok(SectionAssignment(start, end))
     }
 }
