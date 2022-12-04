@@ -15,7 +15,7 @@ fn main() {
         let first_assignment = SectionAssignment::from_str(assignments.next().unwrap());
         let second_assignment = SectionAssignment::from_str(assignments.next().unwrap());
 
-        if first_assignment.fully_contained(&second_assignment) {
+        if first_assignment.check_colliding(&second_assignment) {
             number_of_duplicates += 1;
         }
     }
@@ -38,5 +38,9 @@ impl SectionAssignment {
     pub fn fully_contained(&self, other: &Self) -> bool {
         (self.0 <= other.0 && self.1 >= other.1) ||
             (other.0 <= self.0 && other.1 >= self.1)
+    }
+
+    pub fn check_colliding(&self, other: &Self) -> bool {
+        other.0 <= self.1 && self.0 <= other.1
     }
 }
