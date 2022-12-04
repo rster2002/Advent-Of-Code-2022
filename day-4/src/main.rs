@@ -11,7 +11,7 @@ fn main() {
 
     let mut number_of_duplicates = 0;
     for line in lines {
-        let mut assignments = line.split(",");
+        let mut assignments = line.split(',');
         let first_assignment = SectionAssignment::from_str(assignments.next().unwrap());
         let second_assignment = SectionAssignment::from_str(assignments.next().unwrap());
 
@@ -28,7 +28,7 @@ struct SectionAssignment(u32, u32);
 
 impl SectionAssignment {
     pub fn from_str(string: &str) -> SectionAssignment {
-        let mut parts = string.split("-");
+        let mut parts = string.split('-');
         let start = parts.next().unwrap().parse().unwrap();
         let end = parts.next().unwrap().parse().unwrap();
 
