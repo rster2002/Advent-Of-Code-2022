@@ -9,8 +9,8 @@ fn main() {
     let file_content = fs::read_to_string(file_path).expect("Could not read file");
 
     let mut lines = file_content.lines();
-
     let mut stacks: BTreeMap<usize, Vec<char>> = BTreeMap::new();
+
     for line in lines.by_ref() {
         let mut chars = line.chars().enumerate();
 
@@ -23,8 +23,7 @@ fn main() {
                 let (_, crate_label) = chars.next().unwrap();
                 let stack_index = i / 4;
 
-                stacks.entry(stack_index)
-                    .or_default();
+                stacks.entry(stack_index).or_default();
 
                 let stack_vec = stacks.get_mut(&stack_index).unwrap();
                 stack_vec.push(crate_label);
@@ -32,13 +31,12 @@ fn main() {
         }
     }
 
+    // Reverse the stacks as the lines are read top to bottom
     for (_, vec) in stacks.iter_mut() {
         vec.reverse();
     }
 
     lines.next();
-
-
 
     for line in lines {
         let mut parts = line.split(' ');
