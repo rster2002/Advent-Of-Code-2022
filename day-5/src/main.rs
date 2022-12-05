@@ -59,7 +59,7 @@ fn main() {
         let mut items: Vec<char> = source_stack.drain(target_source_length..).collect();
 
         // Items should be reversed as in the story they are moved one by one
-        items.reverse();
+        // items.reverse();
 
         // Mutable reference to the destination vec and add append the items
         let dest_stack = stacks.get_mut(&to_stack).unwrap();
@@ -72,5 +72,5 @@ fn main() {
         top_crates.push(*stack.last().unwrap());
     }
 
-    println!("{:?}", top_crates);
+    println!("{}", top_crates);
 }
