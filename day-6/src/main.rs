@@ -1,5 +1,5 @@
 use std::{env, fs};
-use std::collections::{VecDeque, BTreeMap};
+use std::collections::BTreeMap;
 use bounded_vec_deque::BoundedVecDeque;
 
 fn main() {
@@ -10,17 +10,15 @@ fn main() {
     let file_content = fs::read_to_string(file_path).expect("Could not read file");
 
     // Still use .lines to get rid of any \n
-    let mut input = file_content.lines().next().unwrap();
+    let input = file_content.lines().next().unwrap();
     let mut buffer: BoundedVecDeque<char> = BoundedVecDeque::new(4);
 
     for (i, char) in input.chars().enumerate() {
         buffer.push_back(char);
 
-        if buffer.len() == 4 {
-            if all_unique(&buffer) {
-                println!("Char: {}", i + 1);
-                break;
-            }
+        if buffer.len() == 4 && all_unique(&buffer) {
+            println!("Char: {}", i + 1);
+            break;
         }
     }
 }
