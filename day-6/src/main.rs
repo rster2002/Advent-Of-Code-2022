@@ -8,16 +8,15 @@ fn main() {
         .expect("Please provide an input for the program");
 
     let file_content = fs::read_to_string(file_path).expect("Could not read file");
-    const BUFFER_SIZE: usize = 14;
 
     // Still use .lines to get rid of any \n
     let input = file_content.lines().next().unwrap();
-    let mut buffer: BoundedVecDeque<char> = BoundedVecDeque::new(BUFFER_SIZE);
+    let mut buffer: BoundedVecDeque<char> = BoundedVecDeque::new(14);
 
     for (i, char) in input.chars().enumerate() {
         buffer.push_back(char);
 
-        if buffer.len() == BUFFER_SIZE && all_unique(&buffer) {
+        if buffer.is_full() && all_unique(&buffer) {
             println!("Char: {}", i + 1);
             return;
         }
