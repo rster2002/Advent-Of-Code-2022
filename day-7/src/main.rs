@@ -1,10 +1,8 @@
 extern crate core;
 
 use std::{env, fs};
-use std::borrow::BorrowMut;
 use std::collections::BTreeMap;
 use std::fmt::Debug;
-use std::path::PathBuf;
 
 fn main() {
     let file_path = env::args()
@@ -14,7 +12,7 @@ fn main() {
     let file_content = fs::read_to_string(file_path).expect("Could not read file");
 
     // Still use .lines to get rid of any \n
-    let mut input = file_content.lines();
+    let input = file_content.lines();
     let mut virtual_fs = VirtualFS::new();
 
     for line in input {
@@ -28,9 +26,8 @@ fn main() {
         } else if !line.starts_with("dir") {
             let mut parts = line.split(' ');
             let size = parts.next().unwrap().parse().unwrap();
-            let name = parts.next().unwrap();
 
-            virtual_fs.touch(name, size);
+            virtual_fs.touch(size);
         }
     }
 
@@ -47,16 +44,8 @@ fn main() {
         .collect();
 
     candidates.sort();
-    // let mut sorted_candidates:  = candidates.collect();
-    // sorted_candidates.sort();
 
     println!("{:?}", candidates);
-
-    // let total: u32 = virtual_fs.get_dir_sizes()
-    //     .iter()
-    //     .filter(|(_, size)| size < &100000_u32)
-    //     .map(|(_, size)| size)
-    //     .sum();
 }
 
 #[derive(Debug)]
@@ -111,14 +100,13 @@ impl VirtualFS {
             .or_default();
     }
 
-    pub fn touch(&mut self, name: &str, size: u32) {
+    pub fn touch(&mut self, size: u32) {
         let current_path = self.cwd();
         let current_dir = self.dir_map
             .get_mut(&*current_path)
             .unwrap();
 
         current_dir.files.push(VirtualFile {
-            name: name.to_string(),
             size,
         })
     }
@@ -142,7 +130,7 @@ impl VirtualFS {
     pub fn get_dir_sizes(&self) -> Vec<(String, u32)> {
         let mut paths = vec![];
 
-        for (path, _) in &self.dir_map {
+        for path in self.dir_map.keys() {
             let size = self.get_dir_size(path.to_string());
             paths.push((path.to_string(), size));
         }
@@ -167,26 +155,15 @@ impl VirtualDir {
 
 #[derive(Debug)]
 struct VirtualFile {
-    name: String,
     size: u32,
 }
 
-fn push_dir(current_path: &String, dir: &String) -> String {
-    let mut new_path = current_path.clone();
+fn push_dir(current_path: &str, dir: &String) -> String {
+    let mut new_path = current_path.to_owned();
 
     if !new_path.ends_with('/') {
         new_path.push('/');
     }
 
     new_path + dir
-}
-
-fn pop_dir(path: &String) -> String {
-    let mut parts: Vec<&str> = path.split('/')
-        .collect();
-
-    let new_index = parts.len() - 1;
-    parts.drain(new_index..);
-
-    parts.join("/")
 }
