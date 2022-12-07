@@ -11,7 +11,6 @@ fn main() {
 
     let file_content = fs::read_to_string(file_path).expect("Could not read file");
 
-    // Still use .lines to get rid of any \n
     let input = file_content.lines();
     let mut virtual_fs = VirtualFS::new();
 
