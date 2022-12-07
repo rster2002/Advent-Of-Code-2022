@@ -34,13 +34,29 @@ fn main() {
         }
     }
 
-    let total: u32 = virtual_fs.get_dir_sizes()
-        .iter()
-        .filter(|(_, size)| size < &100000_u32)
-        .map(|(_, size)| size)
-        .sum();
+    let space_left = 70000000 - virtual_fs.get_total_used();
+    let to_free = 30000000 - space_left;
 
-    println!("{:?}", total);
+    let sizes = virtual_fs
+        .get_dir_sizes();
+
+    let mut candidates: Vec<&u32> = sizes
+        .iter()
+        .filter(|(_, size)| size >= &to_free)
+        .map(|(_, size)| size)
+        .collect();
+
+    candidates.sort();
+    // let mut sorted_candidates:  = candidates.collect();
+    // sorted_candidates.sort();
+
+    println!("{:?}", candidates);
+
+    // let total: u32 = virtual_fs.get_dir_sizes()
+    //     .iter()
+    //     .filter(|(_, size)| size < &100000_u32)
+    //     .map(|(_, size)| size)
+    //     .sum();
 }
 
 #[derive(Debug)]
@@ -117,6 +133,10 @@ impl VirtualFS {
         }
 
         total
+    }
+
+    pub fn get_total_used(&self) -> u32 {
+        self.get_dir_size("/".to_string())
     }
 
     pub fn get_dir_sizes(&self) -> Vec<(String, u32)> {
