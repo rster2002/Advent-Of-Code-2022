@@ -13,12 +13,6 @@ fn main() {
     mark_horizontal_lines(&mut forest);
     mark_vertical_lines(&mut forest);
 
-    // let mut trees: Vec<(usize, usize)> = forest.get_horizontal_coords(0);
-    //
-    // mark_line(&mut forest, &trees);
-    // trees.reverse();
-    // mark_line(&mut forest, &trees);
-
     println!("{}", forest);
 
     let visible_trees = forest.get_trees()
@@ -27,8 +21,6 @@ fn main() {
         .count();
 
     println!("Visible trees: {}", visible_trees);
-
-    // println!("{:?}", forest);
 }
 
 fn mark_horizontal_lines(forest: &mut Forest) {
@@ -68,14 +60,6 @@ fn mark_line(forest: &mut Forest, coords: &Vec<(usize, usize)>) {
         }
     }
 }
-
-// fn mark_horizontal_line(tree_line: Vec<&Tree>) -> Vec<usize> {
-//     tree_line.iter().map(|tree| tree.x).collect()
-// }
-//
-// fn mark_coordinates(forest: &mut Forest) {
-//     let tree_line = forest.get_horizontal_line(0);
-// }
 
 #[derive(Debug)]
 struct Forest {
