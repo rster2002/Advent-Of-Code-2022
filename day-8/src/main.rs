@@ -1,4 +1,5 @@
 use std::{env, fs};
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 
 fn main() {
@@ -20,7 +21,15 @@ fn main() {
         .filter(|tree| tree.visible)
         .count();
 
+    let mut scenic_scores: Vec<u32> = forest.get_trees()
+        .iter()
+        .map(|tree| tree.scenic_score)
+        .collect();
+
+    scenic_scores.sort();
+
     println!("Visible trees: {}", visible_trees);
+    println!("Highest scenic score: {}", scenic_scores.last().unwrap());
 }
 
 fn mark_horizontal_lines(forest: &mut Forest) {
@@ -48,6 +57,7 @@ fn mark_vertical_lines(forest: &mut Forest) {
 }
 
 fn mark_line(forest: &mut Forest, coords: &Vec<(usize, usize)>) {
+    let mut height_history = vec![];
     let mut lowest: i32 = -1;
 
     for coord in coords {
@@ -58,6 +68,27 @@ fn mark_line(forest: &mut Forest, coords: &Vec<(usize, usize)>) {
             forest.mark_as_visible(coord.0, coord.1);
             lowest = height as i32;
         }
+
+        height_history.reverse();
+
+        let mut distance = 0;
+        for entry in &height_history {
+            if entry >= &height {
+                distance += 1;
+                break;
+            }
+
+            distance += 1;
+        }
+
+        height_history.reverse();
+        height_history.push(height);
+
+        // if coord.0 == 2 && coord.1 == 3 {
+        //     println!("{}: ({}, {}) {} <- {:?}", height, coord.0, coord.1, distance, height_history);
+        // }
+
+        forest.add_scenic_score(coord.0, coord.1, distance);
     }
 }
 
@@ -187,6 +218,10 @@ impl Forest {
     pub fn mark_as_visible(&mut self, x: usize, y: usize) {
         self.get_mut_tree(x, y).visible = true;
     }
+
+    pub fn add_scenic_score(&mut self, x: usize, y: usize, score: u32) {
+        self.get_mut_tree(x, y).scenic_score *= score;
+    }
 }
 
 #[derive(Debug, Default)]
@@ -194,6 +229,7 @@ struct Tree {
     x: usize,
     y: usize,
     height: u32,
+    scenic_score: u32,
     visible: bool,
 }
 
@@ -203,6 +239,7 @@ impl Tree {
             x,
             y,
             height,
+            scenic_score: 1,
             visible: false,
         }
     }
