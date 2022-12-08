@@ -1,5 +1,4 @@
 use std::{env, fs};
-use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 
 fn main() {
@@ -83,10 +82,6 @@ fn mark_line(forest: &mut Forest, coords: &Vec<(usize, usize)>) {
 
         height_history.reverse();
         height_history.push(height);
-
-        // if coord.0 == 2 && coord.1 == 3 {
-        //     println!("{}: ({}, {}) {} <- {:?}", height, coord.0, coord.1, distance, height_history);
-        // }
 
         forest.add_scenic_score(coord.0, coord.1, distance);
     }
