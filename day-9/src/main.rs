@@ -1,8 +1,8 @@
 extern crate core;
 
 use std::{env, fs, mem};
+use std::cmp::Ordering;
 use std::collections::BTreeSet;
-use std::ops::Deref;
 
 fn main() {
     let file_path = env::args()
@@ -32,8 +32,6 @@ fn main() {
         for _ in 0..amount {
             rope.nudge_head(direction);
             visited.insert((rope.knots.last().unwrap().x, rope.knots.last().unwrap().y));
-
-
         }
 
         println!();
@@ -47,8 +45,6 @@ fn main() {
 #[derive(Debug)]
 struct Rope {
     knots: Vec<RopeKnot>,
-    // head: RopeEnd,
-    // tail: RopeEnd,
 }
 
 impl Rope {
@@ -77,7 +73,7 @@ impl Rope {
             .map(|(i, _)| i)
             .collect();
 
-        let mut windows = indexes.windows(2);
+        let windows = indexes.windows(2);
         for window in windows {
             let mut window_iter = window.iter();
             let index_a = window_iter.next().unwrap();
@@ -87,13 +83,11 @@ impl Rope {
             let target_reference = self.knots.get_mut(*index_b).unwrap();
             let mut original_target = mem::take(target_reference);
 
-            let a = self.knots.get(*index_a).unwrap().clone();
+            let a = self.knots.get(*index_a).unwrap();
             Rope::update_following(a, &mut original_target);
 
             mem::swap(self.knots.get_mut(*index_b).unwrap(), &mut original_target);
         }
-
-
     }
 
     fn update_following(parent: &RopeKnot, following: &mut RopeKnot) {
@@ -127,14 +121,6 @@ impl Rope {
                 } else {
                     print!(".");
                 }
-
-                // if self.head.x == x && self.head.y == y {
-                //     print!("H");
-                // } else if self.tail.x == x && self.tail.y == y {
-                //     print!("T");
-                // } else {
-                //     print!(".")
-                // }
             }
 
             println!();
@@ -170,11 +156,9 @@ impl RopeKnot {
 }
 
 fn collapse_to_factor(n: i32) -> i32 {
-    if n == 0 {
-        0
-    } else if n < 0 {
-        -1
-    } else {
-        1
+    match n.cmp(&0) {
+        Ordering::Less => -1,
+        Ordering::Equal => 0,
+        Ordering::Greater => 1,
     }
 }
