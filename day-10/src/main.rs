@@ -14,17 +14,26 @@ fn main() {
     let mut cpu_like = CPULike::new();
     cpu_like.push_instructions(lines);
 
-    let mut sum: i32 = 0;
+    let mut screen_pos = 0;
     while !cpu_like.is_done() {
-        if (cpu_like.cycle + 20) % 40 == 0 {
-            sum += cpu_like.cycle as i32 * cpu_like.register;
+        screen_pos += 1;
+
+        let line_pos = screen_pos % 40;
+        let sprite_pos = cpu_like.register %  40;
+        if line_pos >= sprite_pos && line_pos <= sprite_pos + 2 {
+            print!("█");
+        } else {
+            print!(" ");
         }
 
         cpu_like.run_cycle();
+
+        if screen_pos % 40 == 0 {
+            println!();
+        }
     }
 
     println!("Done!");
-    println!("Sum: {}", sum);
 }
 
 #[derive(Debug)]
@@ -59,8 +68,6 @@ impl CPULike {
 
     pub fn run_cycle(&mut self) {
         if let Some(instruction) = self.instructions.pop_front() {
-            // println!("Running instruction: {}: {}", instruction, self.cycle);
-
             self.cycle += 1;
             self.run_instruction(instruction);
         }
