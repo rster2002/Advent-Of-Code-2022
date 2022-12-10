@@ -1,7 +1,8 @@
 extern crate core;
 
-use std::{env, fs};
+use std::{env, fs, mem};
 use std::collections::BTreeSet;
+use std::ops::Deref;
 
 fn main() {
     let file_path = env::args()
@@ -15,8 +16,8 @@ fn main() {
     let mut rope = Rope::new();
     let mut visited = BTreeSet::new();
 
-    const GRID_WIDTH: i32 = 6;
-    const GRID_HEIGHT: i32 = 6;
+    const GRID_WIDTH: i32 = 26;
+    const GRID_HEIGHT: i32 = 21;
 
     rope.print_grid(GRID_WIDTH, GRID_HEIGHT);
 
@@ -30,11 +31,13 @@ fn main() {
 
         for _ in 0..amount {
             rope.nudge_head(direction);
+            visited.insert((rope.knots.last().unwrap().x, rope.knots.last().unwrap().y));
 
-            println!();
-            rope.print_grid(GRID_WIDTH, GRID_HEIGHT);
-            visited.insert((rope.tail.x, rope.tail.y));
+
         }
+
+        println!();
+        rope.print_grid(GRID_WIDTH, GRID_HEIGHT);
     }
 
     println!("Rope: {:?}", rope);
@@ -43,36 +46,69 @@ fn main() {
 
 #[derive(Debug)]
 struct Rope {
-    head: RopeEnd,
-    tail: RopeEnd,
+    knots: Vec<RopeKnot>,
+    // head: RopeEnd,
+    // tail: RopeEnd,
 }
 
 impl Rope {
     pub fn new() -> Self {
         Self {
-            head: RopeEnd::new('H'),
-            tail: RopeEnd::new('T'),
+            knots: vec![
+                RopeKnot::new('H'),
+                RopeKnot::new('1'),
+                RopeKnot::new('2'),
+                RopeKnot::new('3'),
+                RopeKnot::new('4'),
+                RopeKnot::new('5'),
+                RopeKnot::new('6'),
+                RopeKnot::new('7'),
+                RopeKnot::new('8'),
+                RopeKnot::new('9'),
+            ],
         }
     }
 
     pub fn nudge_head(&mut self, direction: &str) {
-        self.head.nudge_direction(direction);
-        self.update_tail();
+        self.knots.get_mut(0).unwrap().nudge_direction(direction);
+
+        let indexes: Vec<usize> = self.knots.iter()
+            .enumerate()
+            .map(|(i, _)| i)
+            .collect();
+
+        let mut windows = indexes.windows(2);
+        for window in windows {
+            let mut window_iter = window.iter();
+            let index_a = window_iter.next().unwrap();
+            let index_b = window_iter.next().unwrap();
+
+            // TODO this is just gross...
+            let target_reference = self.knots.get_mut(*index_b).unwrap();
+            let mut original_target = mem::take(target_reference);
+
+            let a = self.knots.get(*index_a).unwrap().clone();
+            Rope::update_following(a, &mut original_target);
+
+            mem::swap(self.knots.get_mut(*index_b).unwrap(), &mut original_target);
+        }
+
+
     }
 
-    fn update_tail(&mut self) {
-        while self.get_distance() > 1.5_f32 {
-            let difference_x = collapse_to_factor(self.head.x - self.tail.x);
-            let difference_y = collapse_to_factor(self.head.y - self.tail.y);
+    fn update_following(parent: &RopeKnot, following: &mut RopeKnot) {
+        while Rope::get_distance(parent, following) > 1.5_f32 {
+            let nudge_x = collapse_to_factor(parent.x - following.x);
+            let nudge_y = collapse_to_factor(parent.y - following.y);
 
-            self.tail.x += difference_x;
-            self.tail.y += difference_y;
+            following.x += nudge_x;
+            following.y += nudge_y;
         }
     }
 
-    fn get_distance(&self) -> f32 {
-        let a = (self.head.x - self.tail.x).pow(2) as f32;
-        let b = (self.head.y - self.tail.y).pow(2) as f32;
+    fn get_distance(parent: &RopeKnot, following: &RopeKnot) -> f32 {
+        let a = (parent.x - following.x).pow(2) as f32;
+        let b = (parent.y - following.y).pow(2) as f32;
 
         (a + b).sqrt()
     }
@@ -82,13 +118,23 @@ impl Rope {
             let y = h - c - 1;
 
             for x in 0..w {
-                if self.head.x == x && self.head.y == y {
-                    print!("H");
-                } else if self.tail.x == x && self.tail.y == y {
-                    print!("T");
+                let knot_option = self.knots
+                    .iter()
+                    .find(|knot| knot.x == x && knot.y == y);
+
+                if let Some(knot) = knot_option {
+                    print!("{}", knot.icon);
                 } else {
-                    print!(".")
+                    print!(".");
                 }
+
+                // if self.head.x == x && self.head.y == y {
+                //     print!("H");
+                // } else if self.tail.x == x && self.tail.y == y {
+                //     print!("T");
+                // } else {
+                //     print!(".")
+                // }
             }
 
             println!();
@@ -96,14 +142,14 @@ impl Rope {
     }
 }
 
-#[derive(Debug)]
-struct RopeEnd {
+#[derive(Debug, Default)]
+struct RopeKnot {
     x: i32,
     y: i32,
     icon: char,
 }
 
-impl RopeEnd {
+impl RopeKnot {
     pub fn new(icon: char) -> Self {
         Self {
             x: 0,
