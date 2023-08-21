@@ -1,11 +1,13 @@
 use std::{cmp::Ordering};
 
+use num_bigint::{BigUint, ToBigInt, ToBigUint};
+
 #[derive(Debug)]
 struct Monkey {
-    items: Vec<u32>,
-    inspections: u32,
+    items: Vec<BigUint>,
+    inspections: BigUint,
     operation: Operation,
-    test: u32,
+    test: BigUint,
     target_true: usize,
     target_false: usize,
 }
@@ -19,7 +21,7 @@ enum Operation {
 #[derive(Debug)]
 enum OperationValue {
     Old,
-    Number(u32),
+    Number(BigUint),
 }
 
 fn main() {
@@ -90,7 +92,7 @@ fn main() {
 
         monkeys.push(Monkey {
             items: starting_items,
-            inspections: 0,
+            inspections: 0.to_biguint().unwrap(),
             operation: op,
             test,
             target_true,
@@ -98,10 +100,19 @@ fn main() {
         });
     }
 
+    let shared_mod: BigUint = monkeys.iter()
+        .map(|m| m.test.clone())
+        .product();
+
     let mut i = 0;
-    while i < 20 {
-        play_round(&mut monkeys);
-        print_state(&monkeys);
+    while i < 10000 {
+        play_round(&mut monkeys, shared_mod.clone());
+
+        if i % 1000 == 0 || i == 20 {
+            print_state(&monkeys);            
+        }
+
+        // print_state(&monkeys);
 
         i += 1;
     }
@@ -115,15 +126,15 @@ fn main() {
             }
         });
 
-    let answer: u32 = monkeys.iter()
+    let answer: BigUint = monkeys.iter()
         .take(2)
-        .map(|m| m.inspections)
+        .map(|m| m.inspections.clone())
         .product();
 
     dbg!(answer);
 }
 
-fn play_round(monkeys: &mut Vec<Monkey>) {
+fn play_round(monkeys: &mut Vec<Monkey>, shared_mod: BigUint) {
     let mut i = 0_usize;
 
     while i < monkeys.len() {
@@ -134,12 +145,12 @@ fn play_round(monkeys: &mut Vec<Monkey>) {
                 .get_mut(i)
                 .unwrap();
 
-            monkey.inspections += monkey.items.len() as u32;
+            monkey.inspections += BigUint::from(monkey.items.len());
 
             for item in monkey.items.iter() {
-                let new_worry = perform_op(*item, &monkey.operation) / 3;
+                let new_worry = perform_op(item, &monkey.operation) % shared_mod.clone();
             
-                let target = if new_worry % monkey.test == 0 {
+                let target = if new_worry.clone() % monkey.test.clone() == 0_i32.to_biguint().unwrap() {
                     monkey.target_true
                 } else {
                     monkey.target_false
@@ -169,16 +180,16 @@ fn print_state(monkeys: &[Monkey]) {
     }
 }
 
-fn perform_op(value: u32, op: &Operation) -> u32 {
+fn perform_op(value: &BigUint, op: &Operation) -> BigUint {
     match op {
-        Operation::Add(op_value) => value + get_op_value(value, op_value),
-        Operation::Multiply(op_value) => value * get_op_value(value, op_value),
+        Operation::Add(op_value) => value.clone() + get_op_value(&value, op_value),
+        Operation::Multiply(op_value) => value.clone() * get_op_value(&value, op_value),
     }
 }
 
-fn get_op_value(value: u32, op_value: &OperationValue) -> u32 {
+fn get_op_value(value: &BigUint, op_value: &OperationValue) -> BigUint {
     match op_value {
-        OperationValue::Old => value,
-        OperationValue::Number(number) => *number,
+        OperationValue::Old => value.clone(),
+        OperationValue::Number(number) => number.clone()
     }
 }
