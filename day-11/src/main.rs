@@ -1,4 +1,4 @@
-use std::{collections::HashMap, cmp::Ordering};
+use std::{cmp::Ordering};
 
 #[derive(Debug)]
 struct Monkey {
@@ -49,7 +49,7 @@ fn main() {
             .replace("Operation: new = old ", "");
 
         let mut operation = op_line
-            .split(" ");
+            .split(' ');
 
         let op = operation.next().unwrap();
 
@@ -163,7 +163,7 @@ fn play_round(monkeys: &mut Vec<Monkey>) {
     }
 }
 
-fn print_state(monkeys: &Vec<Monkey>) {
+fn print_state(monkeys: &[Monkey]) {
     for (i, monkey) in monkeys.iter().enumerate() {
         println!("Monkey {}: {:?}", i, monkey.items);
     }
