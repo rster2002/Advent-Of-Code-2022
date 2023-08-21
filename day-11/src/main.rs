@@ -1,6 +1,6 @@
 use std::{cmp::Ordering};
 
-use num_bigint::{BigUint, ToBigInt, ToBigUint};
+use num_bigint::{BigUint, ToBigUint};
 
 #[derive(Debug)]
 struct Monkey {
@@ -182,8 +182,8 @@ fn print_state(monkeys: &[Monkey]) {
 
 fn perform_op(value: &BigUint, op: &Operation) -> BigUint {
     match op {
-        Operation::Add(op_value) => value.clone() + get_op_value(&value, op_value),
-        Operation::Multiply(op_value) => value.clone() * get_op_value(&value, op_value),
+        Operation::Add(op_value) => value.clone() + get_op_value(value, op_value),
+        Operation::Multiply(op_value) => value.clone() * get_op_value(value, op_value),
     }
 }
 
