@@ -169,49 +169,6 @@ fn print_state(monkeys: &[Monkey]) {
     }
 }
 
-// fn play_round(monkeys: &mut HashMap<usize, Monkey>) {
-//     for index in monkeys.keys() {
-//         let targets = vec![];
-
-//         monkeys.entry(*index)
-//             .and_modify(|i| {
-//                 for item in i.items {
-
-
-//                     targets.push((target, new_worry));
-//                 }
-
-//                 i.items = vec![];
-//             });
-//     }
-// }
-
-// fn play_round(monkeys: &mut Vec<Monkey>) {
-//     for monkey in monkeys {
-//         let targets: Vec<(usize, u32)> = {
-//             monkey.items
-//                 .iter()
-//                 .map(|item| {
-                    
-
-//                     
-//                 })
-//                 .collect()
-//         };
-
-//         for (target, item) in targets {
-//             monkeys.get_mut(target)
-//                 .unwrap()
-//                 .items
-//                 .push(item);
-//         }
-//     }
-
-
-
-
-// }
-
 fn perform_op(value: u32, op: &Operation) -> u32 {
     match op {
         Operation::Add(op_value) => value + get_op_value(value, op_value),
